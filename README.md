@@ -160,10 +160,10 @@ da8deef610c4        username/app:0.0.1-armhf                     "/usr/local/bin
 
 ```
 
-4. Follow APP's log by `docker logs`. Find source code at `rootfs/usr/local/bin/entrypoint.sh`.
+4. Follow APP's log by `journalctl`. Find source code at `rootfs/usr/local/bin/entrypoint.sh`.
 
 ```
-root@Moxa:~# docker logs -f sample_app_1 --tail=2
+root@Moxa:~# journalctl -f sample_app_1 --tail=2
 Mon Oct 21 14:30:00 CST 2019
 {"data":{"id":1,"wan":true,"enable":true,"enableDhcp":false,"ip":"10.144.48.108","netmask":"255.255.252.0","gateway":"10.144.51.254","dns":["8.8.8.8"],"status":"connected","mac":"00:90:e8:00:00:41","subnet":"10.144.48.0","broadcast":"10.144.51.255","type":"ethernets","name":"eth0","displayName":"LAN1"}}Mon Oct
 21 14:30:00 CST 2019
