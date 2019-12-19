@@ -1,0 +1,7 @@
+version: '2'
+services:
+  app:
+    image: username/app:0.0.1-armhf
+  server:
+    image: username/app:0.0.1-armhf
+    entrypoint: ["/usr/local/bin/server"]
