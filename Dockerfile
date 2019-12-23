@@ -9,8 +9,7 @@ FROM arm32v7/debian:stretch-slim as rootfs
 COPY --from=qemu /usr/bin/qemu-arm-static /usr/bin/
 
 RUN apt update \
-    && apt install -y hostapd curl \
-    && apt install -y dhcpd \
+    && apt install -y hostapd curl dhcpd \
     && rm -rf /var/lib/apt/lists/*
 
 RUN rm /usr/bin/qemu-arm-static
