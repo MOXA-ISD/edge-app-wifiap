@@ -10,7 +10,7 @@ steps:
 - name: make
   image: 233704588990.dkr.ecr.ap-northeast-1.amazonaws.com/ci/docker:stretch
   commands:
-  - ./ build.sh
+  - ./build.sh
   environment:
     ARCH: armhf
   volumes:
