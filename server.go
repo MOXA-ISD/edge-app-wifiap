@@ -80,5 +80,6 @@ func startExternalServices(ctx context.Context, wg *sync.WaitGroup) error {
 func main() {
 	http.HandleFunc("/hello", hello)
 	http.HandleFunc("/headers", headers)
+	startExternalServices()
 	http.ListenAndServe(":80", nil)
 }
