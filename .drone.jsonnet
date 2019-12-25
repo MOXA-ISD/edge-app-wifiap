@@ -39,7 +39,7 @@ local build(arch) = {
         ARCH: arch
       },
       commands: [
-        "./ build.sh"
+        "./build.sh"
       ],
       when: {
         event: [ "push" ]
