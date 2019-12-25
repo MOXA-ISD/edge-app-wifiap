@@ -19,6 +19,7 @@ RUN rm /usr/bin/qemu-arm-static
 ################################################################################
 FROM golang:1.13-alpine as server
 
+COPY vendor src/
 COPY server.go ./
 RUN GOOS=linux GOARCH=arm GOARM=7 go build -o /usr/local/bin/server server.go
 
