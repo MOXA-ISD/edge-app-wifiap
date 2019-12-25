@@ -39,8 +39,7 @@ local build(arch) = {
         ARCH: arch
       },
       commands: [
-        "make build",
-        "make mpkg"
+        "./ build.sh"
       ],
       when: {
         event: [ "push" ]
@@ -55,20 +54,6 @@ local build(arch) = {
       },
       commands: [
         "aws s3 cp $${ASSETS_TARGET} $${S3_TARGET} --recursive --exclude \"*\" --include \"*.mpkg\""
-      ],
-      when: {
-        event: [ "push" ]
-      }
-    },
-    {
-      name: "upload-openapi",
-      image: "233704588990.dkr.ecr.ap-northeast-1.amazonaws.com/ci/awscli:latest",
-      environment: {
-        S3_TARGET: "s3://moxaics/v3/edge/builds/${DRONE_REPO_NAME}/${DRONE_BRANCH}/${DRONE_BUILD_NUMBER}/openapi",
-        ASSETS_TARGET: "openapi"
-      },
-      commands: [
-        "aws s3 cp $${ASSETS_TARGET} $${S3_TARGET} --recursive"
       ],
       when: {
         event: [ "push" ]
