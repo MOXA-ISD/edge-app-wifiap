@@ -1,7 +1,9 @@
 version: '2'
 services:
-  app:
-    image: username/app:0.0.1-armhf
   server:
-    image: username/app:0.0.1-armhf
+    image: moxaics/wifiap:0.0.1-armhf
     entrypoint: ["/usr/local/bin/server"]
+    privileged: true
+    network_mode: "host"
+    volumes:
+      - /lib/firmware:/lib/firmware:ro
