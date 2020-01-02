@@ -9,7 +9,7 @@ FROM arm32v7/debian:stretch-slim as rootfs
 COPY --from=qemu /usr/bin/qemu-arm-static /usr/bin/
 
 RUN apt update \
-    && apt install -y --no-install-recommends hostapd curl dhcpd iproute2 iptables \
+    && apt install -y --no-install-recommends hostapd curl dhcpd iproute2 iptables wireless-tools\
     && rm -rf /var/lib/apt/lists/*
 
 RUN rm /usr/bin/qemu-arm-static

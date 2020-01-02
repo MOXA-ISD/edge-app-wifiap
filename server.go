@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -136,8 +137,19 @@ func main() {
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	signal.Notify(quit, syscall.SIGTERM)
+
+	router := gin.Default()
+	router.GET("/api/v1/dhcp-leases", func(c *gin.Context) {
+		cmd = exec.CommandContext(ctx, "for", "sta", "in", "$(iw", "dev", "wlan0", "station", "dump", "|", "grep", "Station", "|", "cut", "-d'", "'", "-f", "2);", "do", "dumpleases", "|", "grep", "$sta;", "done", ">", "dhcp-leases")
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			output = err.Error()
+		}
+		c.JSON(http.StatusOK, gin.H{"data": output})
+	})
 	srv := &http.Server{
-		Addr: ":80",
+		Addr:    ":80",
+		Handler: router,
 	}
 
 	go func() {
