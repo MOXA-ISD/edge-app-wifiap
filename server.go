@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -144,7 +145,8 @@ func main() {
 		initcmd := exec.CommandContext(ctx, "touch", filepath.Join("/var", "/lib", "/misc", "udhcpd.leases"))
 		initcmd.Run()
 
-		writecmd := exec.CommandContext(ctx, "kill", "-SIGUSR1", "$(cat /var/run/udhcpd.pid)")
+		pid, err := ioutil.ReadFile("/var/run/udhcpd.pid")
+		writecmd := exec.CommandContext(ctx, "kill", "-SIGUSR1", string(pid))
 		writecmd.Run()
 
 		cmd = exec.CommandContext(ctx, "sh", "-c", "for sta in $(iw dev wlan0 station dump | grep Station | cut -d' ' -f 2); do dumpleases | grep $sta; done")
