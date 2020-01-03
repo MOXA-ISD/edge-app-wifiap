@@ -140,20 +140,32 @@ func main() {
 
 	router := gin.Default()
 	router.GET("/api/v1/dhcp-leases", func(c *gin.Context) {
-		cmd = exec.CommandContext(ctx, "for", "sta", "in", "$(iw", "dev", "wlan0", "station", "dump", "|", "grep", "Station", "|", "cut", "-d'", "'", "-f", "2);", "do", "dumpleases", "|", "grep", "$sta;", "done", ">", "dhcp-leases")
-		output, err := cmd.CombinedOutput()
-		if err != nil {
+
+		initcmd := exec.CommandContext(ctx, "touch", filepath.Join("/var", "/lib", "/misc", "udhcpd.leases"))
+		initcmd.Run()
+
+		writecmd := exec.CommandContext(ctx, "kill", "-SIGUSR1", "$(cat /var/run/udhcpd.pid)")
+		writecmd.Run()
+
+		cmd = exec.CommandContext(ctx, "sh", "-c", "for sta in $(iw dev wlan0 station dump | grep Station | cut -d' ' -f 2); do dumpleases | grep $sta; done")
+
+		var output string
+		b, err := cmd.CombinedOutput()
+		if err == nil {
+			output = string(b)
+		} else {
 			output = err.Error()
 		}
 		c.JSON(http.StatusOK, gin.H{"data": output})
 	})
 	srv := &http.Server{
-		Addr:    ":80",
+		Addr:    ":12345",
 		Handler: router,
 	}
 
 	go func() {
 		srv.ListenAndServe()
+		// TODO error message
 	}()
 
 	<-quit
