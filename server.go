@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -146,19 +147,28 @@ func main() {
 		initcmd.Run()
 
 		pid, err := ioutil.ReadFile("/var/run/udhcpd.pid")
-		writecmd := exec.CommandContext(ctx, "kill", "-SIGUSR1", string(pid))
-		writecmd.Run()
+		if err != nil {
+			logrus.Errorf("error1: %v", err.Error())
+		}
+		logrus.Errorf("pid: %v", pid)
+		reflashcmd := exec.CommandContext(ctx, "/bin/busybox", "kill", "-SIGUSR1", strings.TrimSpace(string(pid)))
+		b, err := reflashcmd.CombinedOutput()
+
+		if err != nil {
+			logrus.Errorf("error2: %v", err.Error())
+		}
+		logrus.Errorf("%v", string(b))
 
 		cmd = exec.CommandContext(ctx, "sh", "-c", "for sta in $(iw dev wlan0 station dump | grep Station | cut -d' ' -f 2); do dumpleases | grep $sta; done")
 
 		var output string
-		b, err := cmd.CombinedOutput()
+		b, err = cmd.CombinedOutput()
 		if err == nil {
 			output = string(b)
 		} else {
 			output = err.Error()
 		}
-		c.JSON(http.StatusOK, gin.H{"data": output})
+		c.JSON(http.StatusOK, gin.H{"data": strings.TrimSpace(output)})
 	})
 	srv := &http.Server{
 		Addr:    ":12345",
