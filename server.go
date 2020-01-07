@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"syscall"
@@ -17,6 +18,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
+
+type Configuration struct {
+	Mac        string `json:"mac,omitempty"`
+	Ip         string `json:"ip"`
+	HostName   string `json:"hostname"`
+	ExpireTime string `json:"expiretime"`
+}
 
 var systemStop = false
 
@@ -159,16 +167,43 @@ func main() {
 		}
 		logrus.Errorf("%v", string(b))
 
-		cmd = exec.CommandContext(ctx, "sh", "-c", "for sta in $(iw dev wlan0 station dump | grep Station | cut -d' ' -f 2); do dumpleases | grep $sta; done")
+		var str string
+		var dump string
+		var clientData []Configuration = []Configuration{}
+		re := regexp.MustCompile(`(?m)Station ([\S]+)`)
 
-		var output string
-		b, err = cmd.CombinedOutput()
+		cmd = exec.CommandContext(ctx, "iw", "dev", "wlan0", "station", "dump")
+		m, err := cmd.CombinedOutput()
 		if err == nil {
-			output = string(b)
+			str = string(m)
 		} else {
-			output = err.Error()
+			str = err.Error()
 		}
-		c.JSON(http.StatusOK, gin.H{"data": strings.TrimSpace(output)})
+
+		cmd = exec.CommandContext(ctx, "dumpleases")
+		d, err := cmd.CombinedOutput()
+		if err == nil {
+			dump = string(d)
+		} else {
+			dump = err.Error()
+		}
+
+		for _, match := range re.FindAllString(str, -1) {
+			mac := strings.Fields(match)
+			remac := regexp.MustCompile(mac[1] + ".*")
+
+			for _, matches := range remac.FindAllString(dump, -1) {
+				data := strings.Fields(matches)
+				config := Configuration{
+					Mac:        data[0],
+					Ip:         data[1],
+					HostName:   data[2],
+					ExpireTime: data[3] + data[4] + data[5]}
+				clientData = append(clientData, config)
+			}
+		}
+
+		c.JSON(http.StatusOK, gin.H{"data": clientData})
 	})
 	srv := &http.Server{
 		Addr:    ":12345",
