@@ -27,7 +27,6 @@ steps:
   commands:
   - aws s3 cp $${ASSETS_TARGET} $${S3_TARGET} --recursive --exclude "*" --include "*.mpkg"
   environment:
-    ASSETS_TARGET: build/armhf
     S3_TARGET: s3://moxaics/v3/edge/builds/${DRONE_REPO_NAME}/${DRONE_BRANCH}/${DRONE_BUILD_NUMBER}
   when:
     event:
