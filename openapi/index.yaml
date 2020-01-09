@@ -1,0 +1,50 @@
+openapi: '3.0.0'
+
+info:
+  version: '1.0.0'
+  title: 'Get all connected dhcp client information APIs'
+  description: 'Get all connected dhcp client information APIs'
+
+servers:
+  - url: http://127.0.0.1:12345/api/v1/dhcp-leases
+
+security:
+  - bearerAuth: []
+
+paths:
+    /api/v1/dhcp-leases:
+      get:
+        description: Get all connected dhcp client information.
+        tags: ["device", "wifiap"]
+        responses:
+          200:
+            description: All connected dhcp client information .
+            content:
+              application/json:
+                schema:
+                    title: All connected dhcp client information
+                    properties:
+                        mac:
+                            type: string
+                            description: Client interface mac.
+                            readOnly: true
+                            example: '00:90:e8:12:34:56'      
+                        ip:
+                            type: string
+                            description: Client interface ip range 10.0.0.3 to 10.0.0.23.
+                            example: '10.0.0.10'
+                        hostname:
+                            type: string
+                            description: Client device name.
+                            example: 'Smart-plug-01'
+                        expiretime:
+                            type: string
+                            description: Client device ip available time.
+                            example: '11:40:00'
+                example:
+                  data:
+                    - mac: '20:79:18:dc:8d:e0'
+                      ip: '10.0.0.10'
+                      hostname: 'TonyZXLiao-NB01'
+                      expiretime: '11:40:00'
+                  count: 1
