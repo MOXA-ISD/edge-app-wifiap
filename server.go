@@ -198,7 +198,7 @@ func main() {
 					Mac:        data[0],
 					Ip:         data[1],
 					HostName:   data[2],
-					ExpireTime: data[3] + data[4] + data[5]}
+					ExpireTime: data[3]}
 				clientData = append(clientData, config)
 			}
 		}
