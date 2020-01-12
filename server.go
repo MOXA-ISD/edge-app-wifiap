@@ -52,7 +52,6 @@ func startExternalServices(ctx context.Context, wg *sync.WaitGroup) error {
 			cmd.Run()
 
 			cmd = exec.CommandContext(ctx, "/usr/sbin/hostapd", filepath.Join("/etc", "hostapd", "hostapd.conf"))
-
 			err = cmd.Start()
 			if err != nil {
 				log.Fatal("failed to start hostapd: " + err.Error())
