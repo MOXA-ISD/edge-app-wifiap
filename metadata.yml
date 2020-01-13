@@ -3,5 +3,5 @@ version: v1
 spec:
   name: wifiap
   displayname: wifiap
-  version: 0.0.1
-  arch: armhf
+  version: "${VERSION}"
+  arch: ${ARCH}

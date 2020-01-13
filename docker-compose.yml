@@ -1,7 +1,7 @@
 version: '2'
 services:
   server:
-    image: moxaics/wifiap:0.0.1-armhf
+    image: moxaics/wifiap:${VERSION}-${ARCH}
     entrypoint: ["/usr/local/bin/server"]
     privileged: true
     network_mode: "host"
