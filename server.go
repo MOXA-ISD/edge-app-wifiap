@@ -143,6 +143,28 @@ func main() {
 	cmd = exec.CommandContext(ctx, "iptables", "-A", "FORWARD", "-i", "wlan0", "-o", "eth0", "-j", "ACCEPT")
 	cmd.Run()
 
+	// iptables -t nat -A POSTROUTING -o eth2 -j MASQUERADE
+	// delete
+	cmd = exec.CommandContext(ctx, "iptables", "-t", "nat", "-D", "POSTROUTING", "-s", "10.0.0.1/24", "-o", "eth2", "-j", "MASQUERADE")
+	cmd.Run()
+	// append
+	cmd = exec.CommandContext(ctx, "iptables", "-t", "nat", "-A", "POSTROUTING", "-s", "10.0.0.1/24", "-o", "eth2", "-j", "MASQUERADE")
+	cmd.Run()
+	// iptables -A FORWARD -i eth2 -o wlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+	// delete
+	cmd = exec.CommandContext(ctx, "iptables", "-D", "FORWARD", "-i", "eth2", "-o", "wlan0", "-m", "state", "--state", "RELATED,ESTABLISHED", "-j", "ACCEPT")
+	cmd.Run()
+	// append
+	cmd = exec.CommandContext(ctx, "iptables", "-A", "FORWARD", "-i", "eth2", "-o", "wlan0", "-m", "state", "--state", "RELATED,ESTABLISHED", "-j", "ACCEPT")
+	cmd.Run()
+	// iptables -A FORWARD -i wlan0 -o eth2 -j ACCEPT
+	// delete
+	cmd = exec.CommandContext(ctx, "iptables", "-D", "FORWARD", "-i", "wlan0", "-o", "eth2", "-j", "ACCEPT")
+	cmd.Run()
+	// append
+	cmd = exec.CommandContext(ctx, "iptables", "-A", "FORWARD", "-i", "wlan0", "-o", "eth2", "-j", "ACCEPT")
+	cmd.Run()
+
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	signal.Notify(quit, syscall.SIGTERM)
