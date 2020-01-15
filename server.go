@@ -215,11 +215,27 @@ func main() {
 
 			for _, matches := range remac.FindAllString(dump, -1) {
 				data := strings.Fields(matches)
+				logrus.Errorf("%v", data)
+				logrus.Errorf("%v", len(data))
+				writedata := make([]string, 4)
+				if len(data) < 4 {
+					writedata[0] = data[0]
+					writedata[1] = data[1]
+					writedata[2] = ""
+					writedata[3] = data[2]
+				} else {
+					writedata[0] = data[0]
+					writedata[1] = data[1]
+					writedata[2] = data[2]
+					writedata[3] = data[3]
+				}
+				logrus.Errorf("%v", writedata)
 				config := Configuration{
-					Mac:        data[0],
-					Ip:         data[1],
-					HostName:   data[2],
-					ExpireTime: data[3]}
+					Mac:        writedata[0],
+					Ip:         writedata[1],
+					HostName:   writedata[2],
+					ExpireTime: writedata[3]}
+
 				clientData = append(clientData, config)
 			}
 		}
