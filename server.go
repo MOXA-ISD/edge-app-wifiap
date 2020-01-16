@@ -76,7 +76,7 @@ func startExternalServices(ctx context.Context, wg *sync.WaitGroup) error {
 				if err2 != nil || io.EOF == err2 {
 					break
 				}
-				logrus.Errorf("%v", line)
+				logrus.Info(line)
 				index++
 				contentArray = append(contentArray, line)
 			}
@@ -204,14 +204,13 @@ func main() {
 		if err != nil {
 			logrus.Errorf("error1: %v", err.Error())
 		}
-		logrus.Errorf("pid: %v", pid)
-		reflashcmd := exec.CommandContext(ctx, "/bin/busybox", "kill", "-SIGUSR1", strings.TrimSpace(string(pid)))
-		b, err := reflashcmd.CombinedOutput()
+		logrus.Infof("pid: %v", pid)
 
-		if err != nil {
+		reflashcmd := exec.CommandContext(ctx, "/bin/busybox", "kill", "-SIGUSR1", strings.TrimSpace(string(pid)))
+		reflasherr := reflashcmd.Run()
+		if reflasherr != nil {
 			logrus.Errorf("error2: %v", err.Error())
 		}
-		logrus.Errorf("%v", string(b))
 
 		var str string
 		var dump string
@@ -240,8 +239,8 @@ func main() {
 
 			for _, matches := range remac.FindAllString(dump, -1) {
 				data := strings.Fields(matches)
-				logrus.Errorf("%v", data)
-				logrus.Errorf("%v", len(data))
+				logrus.Infof("data: %v", data)
+				logrus.Infof("data length: %v", len(data))
 				writedata := make([]string, 4)
 				if len(data) < 4 {
 					writedata[0] = data[0]
@@ -254,7 +253,7 @@ func main() {
 					writedata[2] = data[2]
 					writedata[3] = data[3]
 				}
-				logrus.Errorf("%v", writedata)
+				logrus.Infof("writedata: %v", writedata)
 				config := Configuration{
 					Mac:        writedata[0],
 					Ip:         writedata[1],
