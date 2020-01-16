@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"context"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -27,6 +29,7 @@ type Configuration struct {
 }
 
 var systemStop = false
+var contentArray = make([]string, 0, 5)
 
 func startExternalServices(ctx context.Context, wg *sync.WaitGroup) error {
 	restartTime := 5 * time.Second
@@ -51,19 +54,41 @@ func startExternalServices(ctx context.Context, wg *sync.WaitGroup) error {
 			cmd = exec.CommandContext(ctx, "ip", "link", "set", "wlan0", "up")
 			cmd.Run()
 
-			cmd = exec.CommandContext(ctx, "/usr/sbin/hostapd", filepath.Join("/etc", "hostapd", "hostapd.conf"))
+			cmd = exec.CommandContext(ctx, "/usr/sbin/hostapd", "-dd", filepath.Join("/etc", "hostapd", "hostapd.conf"))
+			contentArray = contentArray[0:0]
+
+			stdout, stderr := cmd.StdoutPipe()
+			if stderr != nil {
+				log.Fatal("failed to print hostapd log" + stderr.Error())
+			}
+
 			err = cmd.Start()
 			if err != nil {
 				log.Fatal("failed to start hostapd: " + err.Error())
 			}
+
+			reader := bufio.NewReader(stdout)
+
+			var index int
+
+			for {
+				line, err2 := reader.ReadString('\n')
+				if err2 != nil || io.EOF == err2 {
+					break
+				}
+				logrus.Errorf("%v", line)
+				index++
+				contentArray = append(contentArray, line)
+			}
+
 			cmd.Wait()
-			log.Info("terminated")
+			log.Info("hostapd terminated")
 			select {
 			case <-ctx.Done():
 			case <-time.After(restartTime):
 			}
 			if ctx.Err() == nil && !systemStop {
-				log.Error("restart")
+				log.Error("hostapd restart")
 			}
 		}
 	}()
@@ -87,13 +112,13 @@ func startExternalServices(ctx context.Context, wg *sync.WaitGroup) error {
 				log.Fatal("failed to start dhcpd: " + err.Error())
 			}
 			cmd.Wait()
-			log.Info("terminated")
+			log.Info("udhcpd terminated")
 			select {
 			case <-ctx.Done():
 			case <-time.After(restartTime):
 			}
 			if ctx.Err() == nil && !systemStop {
-				log.Error("restart")
+				log.Error("udhcpd restart")
 			}
 		}
 	}()
