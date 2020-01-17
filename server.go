@@ -204,7 +204,7 @@ func main() {
 		if err != nil {
 			logrus.Errorf("error1: %v", err.Error())
 		}
-		logrus.Infof("pid: %v", pid)
+		logrus.Infof("udhcpd pid: %v", pid)
 
 		reflashcmd := exec.CommandContext(ctx, "/bin/busybox", "kill", "-SIGUSR1", strings.TrimSpace(string(pid)))
 		reflasherr := reflashcmd.Run()
@@ -239,8 +239,8 @@ func main() {
 
 			for _, matches := range remac.FindAllString(dump, -1) {
 				data := strings.Fields(matches)
-				logrus.Infof("data: %v", data)
-				logrus.Infof("data length: %v", len(data))
+				logrus.Infof("client data: %v", data)
+				logrus.Infof("client data length: %v", len(data))
 				writedata := make([]string, 4)
 				if len(data) < 4 {
 					writedata[0] = data[0]
@@ -253,7 +253,7 @@ func main() {
 					writedata[2] = data[2]
 					writedata[3] = data[3]
 				}
-				logrus.Infof("writedata: %v", writedata)
+				logrus.Infof("client writedata: %v", writedata)
 				config := Configuration{
 					Mac:        writedata[0],
 					Ip:         writedata[1],
